@@ -1,0 +1,9 @@
+# Robots.txt for Construction Luxury Website
+User-agent: *
+Allow: /
+
+# Disallow admin panel
+Disallow: /admin
+
+# Sitemap
+Sitemap: https://luxuryconst.com/sitemap.xml

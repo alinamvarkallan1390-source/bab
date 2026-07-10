@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  editor
+  manager
+}
+
+enum ContentStatus {
+  draft
+  published
+  hidden
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(editor)
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects  Project[]
+  blogs     BlogPost[]
+  @@map("users")
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  name           String
+  slug           String        @unique
+  category       String
+  location       String?
+  budget         String?
+  completionDate DateTime?
+  duration       String?
+  description    String        @db.Text
+  gallery        String[]
+  beforeImages   String[]
+  progressImages String[]
+  finalImages    String[]
+  video          String?
+  features       String[]
+  status         ContentStatus @default(draft)
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  customerReview  CustomerReview?
+  serviceProjects ServiceProject[]
+
+  @@index([status, deletedAt])
+  @@map("projects")
+}
+
+model CustomerReview {
+  id        String @id @default(cuid())
+  name      String
+  photo     String?
+  rating    Int    @default(5)
+  comment   String @db.Text
+  projectId String @unique
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@map("customer_reviews")
+}
+
+model Service {
+  id               String        @id @default(cuid())
+  title            String
+  slug             String        @unique
+  description      String        @db.Text
+  richContent      String?       @db.Text
+  gallery          String[]
+  mainImage        String?
+  beforeAfterImages String[]
+  status           ContentStatus @default(draft)
+  seoTitle         String?
+  seoDescription   String?
+  seoKeywords      String[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
+
+  projects ServiceProject[]
+
+  @@index([status, deletedAt])
+  @@map("services")
+}
+
+model ServiceProject {
+  serviceId String
+  projectId String
+  service   Service @relation(fields: [serviceId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@id([serviceId, projectId])
+  @@map("service_projects")
+}
+
+model BlogPost {
+  id            String        @id @default(cuid())
+  title         String
+  slug          String        @unique
+  content       String        @db.Text
+  excerpt       String?       @db.Text
+  category      String?
+  tags          String[]
+  featuredImage String?
+  readingTime   Int?
+  status        ContentStatus @default(draft)
+  seoTitle      String?
+  seoDescription String?
+  seoKeywords   String[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  @@index([status, deletedAt])
+  @@map("blog_posts")
+}
+
+model Testimonial {
+  id        String        @id @default(cuid())
+  name      String
+  photo     String?
+  rating    Int           @default(5)
+  comment   String        @db.Text
+  status    ContentStatus @default(published)
+  createdAt DateTime      @default(now())
+
+  @@map("testimonials")
+}
+
+model ContactRequest {
+  id         String   @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  subject    String?
+  message    String   @db.Text
+  projectType String?
+  budget     String?
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@map("contact_requests")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  type      String   // project, blog, service
+  createdAt DateTime @default(now())
+
+  @@map("categories")
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+
+  @@map("settings")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String?
+  userId    String?
+  metadata  String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  type      String   // image, video, document
+  filename  String
+  mimeType  String
+  size      Int
+  folder    String?
+  createdAt DateTime @default(now())
+  deletedAt DateTime?
+
+  @@index([deletedAt])
+  @@map("media")
+}
