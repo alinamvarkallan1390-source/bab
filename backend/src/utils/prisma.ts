@@ -1,7 +1,3 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'warn', 'error'] : ['error'],
-});
-
-export default prisma;
+// This file is kept for compatibility - we now use in-memory store
+// Database will be added later
+export default null;

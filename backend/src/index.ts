@@ -5,8 +5,12 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import routes from './routes';
+import { seedData } from './data/store';
 
 const app = express();
+
+// Seed initial data (in-memory, no database needed)
+seedData();
 
 // Security middleware
 app.use(helmet({
@@ -63,7 +67,7 @@ app.listen(config.port, () => {
   Environment: ${config.nodeEnv}
   Port: ${config.port}
   CORS Origin: ${config.corsOrigin}
-  Database: ${config.databaseUrl ? 'Connected' : 'Not configured'}
+  Database: In-Memory (no PostgreSQL required)
   ═══════════════════════════
   `);
 });

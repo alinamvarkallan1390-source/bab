@@ -7,6 +7,7 @@ import * as projectController from '../controllers/project.controller';
 import * as serviceController from '../controllers/service.controller';
 import * as blogController from '../controllers/blog.controller';
 import * as contactController from '../controllers/contact.controller';
+import { testimonials, categories, projects, services, blogPosts, contactRequests } from '../data/store';
 
 const router = Router();
 
@@ -71,101 +72,71 @@ router.get('/contact', authenticate, authorize('admin'), contactController.getCo
 router.put('/contact/:id/read', authenticate, authorize('admin'), contactController.markAsRead);
 
 // ===== Testimonial Routes =====
-router.get('/testimonials', async (_req, res) => {
-  const prisma = (await import('../utils/prisma')).default;
-  const testimonials = await prisma.testimonial.findMany({
-    where: { status: 'published' },
-    orderBy: { createdAt: 'desc' },
-  });
-  return res.json({ success: true, data: testimonials });
+router.get('/testimonials', (_req, res) => {
+  const published = testimonials.filter(t => t.status === 'published');
+  return res.json({ success: true, data: published });
 });
 
 // ===== Categories Routes =====
-router.get('/categories', async (_req, res) => {
-  const prisma = (await import('../utils/prisma')).default;
-  const categories = await prisma.category.findMany({
-    orderBy: { name: 'asc' },
-  });
+router.get('/categories', (_req, res) => {
   return res.json({ success: true, data: categories });
 });
 
 // ===== Dashboard Stats =====
-router.get('/dashboard/stats', authenticate, authorize('admin'), async (_req, res) => {
-  const prisma = (await import('../utils/prisma')).default;
-  
-  const [totalProjects, totalServices, totalBlogs, totalMessages, totalTestimonials] = 
-    await Promise.all([
-      prisma.project.count({ where: { deletedAt: null } }),
-      prisma.service.count({ where: { deletedAt: null } }),
-      prisma.blogPost.count({ where: { deletedAt: null } }),
-      prisma.contactRequest.count(),
-      prisma.testimonial.count(),
-    ]);
-
+router.get('/dashboard/stats', authenticate, authorize('admin'), (_req, res) => {
   return res.json({
     success: true,
     data: {
-      totalProjects,
-      totalServices,
-      totalBlogs,
-      totalMessages,
-      totalTestimonials,
+      totalProjects: projects.length,
+      totalServices: services.length,
+      totalBlogs: blogPosts.length,
+      totalMessages: contactRequests.length,
+      totalTestimonials: testimonials.length,
     },
   });
 });
 
 // ===== Search =====
-router.get('/search', async (req, res) => {
-  const prisma = (await import('../utils/prisma')).default;
+router.get('/search', (req, res) => {
   const q = (req.query.q as string) || '';
 
   if (!q) {
     return res.json({ success: true, data: { projects: [], services: [], blogs: [] } });
   }
 
-  const [projects, services, blogs] = await Promise.all([
-    prisma.project.findMany({
-      where: {
-        status: 'published',
-        deletedAt: null,
-        OR: [
-          { name: { contains: q } },
-          { description: { contains: q } },
-          { category: { contains: q } },
-        ],
-      },
-      take: 5,
-      select: { id: true, name: true, slug: true, category: true },
-    }),
-    prisma.service.findMany({
-      where: {
-        status: 'published',
-        deletedAt: null,
-        OR: [
-          { title: { contains: q } },
-          { description: { contains: q } },
-        ],
-      },
-      take: 5,
-      select: { id: true, title: true, slug: true },
-    }),
-    prisma.blogPost.findMany({
-      where: {
-        status: 'published',
-        deletedAt: null,
-        OR: [
-          { title: { contains: q } },
-          { content: { contains: q } },
-        ],
-      },
-      take: 5,
-      select: { id: true, title: true, slug: true, category: true },
-    }),
-  ]);
+  const query = q.toLowerCase();
+  
+  const matchedProjects = projects
+    .filter(p => 
+      p.status === 'published' &&
+      (p.name.includes(query) || p.description.includes(query) || p.category.includes(query))
+    )
+    .slice(0, 5)
+    .map(p => ({ id: p.id, name: p.name, slug: p.slug, category: p.category }));
+
+  const matchedServices = services
+    .filter(s =>
+      s.status === 'published' &&
+      (s.title.includes(query) || s.description.includes(query))
+    )
+    .slice(0, 5)
+    .map(s => ({ id: s.id, title: s.title, slug: s.slug }));
+
+  const matchedBlogs = blogPosts
+    .filter(b =>
+      b.status === 'published' &&
+      (b.title.includes(query) || b.content.includes(query))
+    )
+    .slice(0, 5)
+    .map(b => ({ id: b.id, title: b.title, slug: b.slug, category: b.category }));
 
   return res.json({
     success: true,
-    data: { projects, services, blogs },
+    data: {
+      projects: matchedProjects,
+      services: matchedServices,
+      blogs: matchedBlogs,
+    },
   });
 });
 
