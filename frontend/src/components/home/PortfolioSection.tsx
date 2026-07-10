@@ -3,10 +3,21 @@
 import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
-import { HiArrowLeft, HiOutlineEye, HiOutlinePlus } from 'react-icons/hi';
 import { projectsData } from '@/data/company';
 
 const categories = ['همه', 'ویلا', 'آپارتمان', 'آشپزخانه', 'اداری', 'تجاری'];
+
+const projectImages: Record<number, string> = {
+  0: '🏡', 1: '🏢', 2: '🏢', 3: '🍳', 4: '🏪', 5: '🚿'
+};
+const projectBgColors = [
+  'from-amber-900/20 to-amber-950/20',
+  'from-blue-900/20 to-blue-950/20',
+  'from-emerald-900/20 to-emerald-950/20',
+  'from-orange-900/20 to-orange-950/20',
+  'from-purple-900/20 to-purple-950/20',
+  'from-cyan-900/20 to-cyan-950/20',
+];
 
 export default function PortfolioSection() {
   const [activeCategory, setActiveCategory] = useState('همه');
@@ -19,24 +30,25 @@ export default function PortfolioSection() {
 
   return (
     <section ref={ref} className="section-padding bg-white" dir="rtl">
-      <div className="container mx-auto px-4 md:px-6">
-        {/* Section Header */}
+      <div className="container mx-auto px-6 lg:px-12">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <span className="text-primary font-semibold text-sm tracking-wider uppercase">نمونه کارها</span>
-          <h2 className="section-title mt-2">
-            پروژه‌های <span className="text-gradient">اخیر</span>
+          <span className="text-[#C8A45C] font-semibold text-sm tracking-[0.2em] uppercase">نمونه کارها</span>
+          <div className="gold-divider mt-4" />
+          <h2 className="section-title mt-4">
+            پروژه‌های <span className="text-gold">اخیر</span>
           </h2>
           <p className="section-subtitle">
             مجموعه‌ای از پروژه‌های موفق ما در سراسر کشور
           </p>
         </motion.div>
 
-        {/* Category Filter */}
+        {/* Filter */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -49,8 +61,8 @@ export default function PortfolioSection() {
               onClick={() => setActiveCategory(cat)}
               className={`px-6 py-3 rounded-xl text-sm font-medium transition-all ${
                 activeCategory === cat
-                  ? 'bg-primary text-dark shadow-lg shadow-primary/25'
-                  : 'bg-lightgray text-gray-600 hover:bg-gray-200'
+                  ? 'bg-[#C8A45C] text-[#0A0A0F] shadow-lg shadow-[#C8A45C]/20'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
               }`}
             >
               {cat}
@@ -58,8 +70,8 @@ export default function PortfolioSection() {
           ))}
         </motion.div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProjects.map((project, index) => (
             <motion.div
               key={project.id}
@@ -68,68 +80,79 @@ export default function PortfolioSection() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="group"
             >
-              <div className="card relative overflow-hidden">
-                {/* Image Container */}
-                <div className="relative h-64 overflow-hidden bg-gray-100">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10" />
+              <div className="luxury-card overflow-hidden">
+                {/* Image placeholder with gradient */}
+                <div className={`relative h-64 bg-gradient-to-br ${projectBgColors[index % projectBgColors.length]} overflow-hidden`}>
+                  {/* Decorative pattern */}
+                  <div className="absolute inset-0 opacity-10" style={{
+                    backgroundImage: 'radial-gradient(circle at 20px 20px, rgba(200,164,92,0.3) 1px, transparent 0)',
+                    backgroundSize: '30px 30px'
+                  }} />
                   
-                  {/* Category Badge */}
-                  <div className="absolute top-4 right-4 z-10">
-                    <span className="px-3 py-1.5 rounded-lg bg-dark/80 backdrop-blur-sm text-white text-xs font-medium">
+                  {/* Icon */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <motion.span
+                      className="text-7xl opacity-30 group-hover:opacity-40 transition-all duration-500"
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                    >
+                      {projectImages[index] || '🏗️'}
+                    </motion.span>
+                  </div>
+
+                  {/* Category badge */}
+                  <div className="absolute top-5 right-5">
+                    <span className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm text-white/90 text-xs font-medium border border-white/10">
                       {project.category}
                     </span>
                   </div>
 
-                  {/* Overlay on Hover */}
-                  <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
                     <Link
                       href={`/portfolio/${project.id}`}
-                      className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-dark hover:scale-110 transition-transform"
+                      className="btn-gold text-sm !px-6 !py-3"
                     >
-                      <HiOutlineEye className="text-xl" />
+                      مشاهده پروژه
                     </Link>
-                    <button className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-all">
-                      <HiOutlinePlus className="text-xl" />
-                    </button>
-                  </div>
-
-                  {/* Placeholder Image with gradient */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-6xl opacity-30">🏗️</span>
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                  <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                    {project.name}
-                  </h3>
-                  <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-                    {project.description}
-                  </p>
-                  <div className="flex items-center justify-between text-sm text-gray-400">
-                    <span>{project.location}</span>
+                <div className="p-8">
+                  <div className="flex items-center justify-between text-xs text-gray-400 mb-3">
+                    <span className="flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {project.location}
+                    </span>
                     <span>{project.completionDate}</span>
                   </div>
+                  <h3 className="text-xl font-bold text-[#1A1A2E] mb-3 group-hover:text-[#C8A45C] transition-colors">
+                    {project.name}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed line-clamp-2">
+                    {project.description}
+                  </p>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* View All Button */}
+        {/* View All */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="text-center mt-12"
+          className="text-center mt-14"
         >
-          <Link
-            href="/portfolio"
-            className="btn-primary inline-flex items-center gap-2"
-          >
+          <Link href="/portfolio" className="btn-gold text-lg inline-flex items-center gap-3">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0l-4-4m4 4l-4 4" />
+            </svg>
             مشاهده همه پروژه‌ها
-            <HiArrowLeft />
           </Link>
         </motion.div>
       </div>

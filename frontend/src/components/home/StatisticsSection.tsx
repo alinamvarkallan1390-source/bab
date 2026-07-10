@@ -1,86 +1,88 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { HiBuildingOffice2, HiCheckBadge, HiHeart, HiMapPin } from 'react-icons/hi2';
 import { companyInfo } from '@/data/company';
 
-function AnimatedCounter({ target, suffix = '', prefix = '' }: { target: number; suffix?: string; prefix?: string }) {
+function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-50px' });
+  const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
-    if (isInView) {
-      let start = 0;
+    if (isInView && !hasAnimated) {
+      setHasAnimated(true);
       const duration = 2000;
-      const steps = 60;
-      const increment = target / steps;
-      const timer = setInterval(() => {
-        start += increment;
-        if (start >= target) {
-          setCount(target);
-          clearInterval(timer);
+      const startTime = Date.now();
+      
+      const update = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(eased * target);
+        setCount(current);
+        
+        if (progress < 1) {
+          requestAnimationFrame(update);
         } else {
-          setCount(Math.floor(start));
+          setCount(target);
         }
-      }, duration / steps);
-      return () => clearInterval(timer);
+      };
+      
+      requestAnimationFrame(update);
     }
-  }, [isInView, target]);
+  }, [isInView, target, hasAnimated]);
 
-  return (
-    <span ref={ref} className="text-4xl md:text-5xl font-black text-white">
-      {prefix}{count}{suffix}
-    </span>
-  );
+  return <span ref={ref} className="text-5xl md:text-6xl font-black text-white">{count}{suffix}</span>;
 }
 
 const stats = [
-  { icon: HiBuildingOffice2, value: companyInfo.stats.yearsExperience, suffix: '+', label: 'سال تجربه' },
-  { icon: HiCheckBadge, value: companyInfo.stats.completedProjects, suffix: '+', label: 'پروژه تکمیل شده' },
-  { icon: HiHeart, value: companyInfo.stats.happyClients, suffix: '+', label: 'مشتری راضی' },
-  { icon: HiMapPin, value: companyInfo.stats.citiesServed, suffix: '+', label: 'شهر تحت پوشش' },
+  { icon: '🏗️', value: companyInfo.stats.yearsExperience, suffix: '+', label: 'سال تجربه' },
+  { icon: '✅', value: companyInfo.stats.completedProjects, suffix: '+', label: 'پروژه تکمیل شده' },
+  { icon: '❤️', value: companyInfo.stats.happyClients, suffix: '+', label: 'مشتری راضی' },
+  { icon: '📍', value: companyInfo.stats.citiesServed, suffix: '+', label: 'شهر تحت پوشش' },
 ];
 
 export default function StatisticsSection() {
   return (
-    <section className="relative py-20 bg-dark overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'linear-gradient(45deg, #F5A623 1px, transparent 1px)',
-          backgroundSize: '50px 50px'
-        }} />
+    <section className="relative py-28 overflow-hidden" style={{ background: '#0A0A0F' }}>
+      {/* Background effects */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 blueprint-grid opacity-30" />
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C8A45C]/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C8A45C]/20 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-8"
-        >
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 group hover:bg-primary/5 hover:border-primary/30 transition-all"
-              >
-                <div className="text-primary text-3xl mb-4 flex justify-center">
-                  <Icon className="group-hover:scale-110 transition-transform" />
+      <div className="container mx-auto px-6 lg:px-12 relative z-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.15, duration: 0.6 }}
+              className="relative group"
+            >
+              <div className="text-center p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-sm hover:bg-white/[0.04] hover:border-[#C8A45C]/20 transition-all duration-500">
+                <div className="text-3xl mb-6">
+                  <motion.span
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, delay: index * 0.3 }}
+                    className="inline-block"
+                  >
+                    {stat.icon}
+                  </motion.span>
                 </div>
                 <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                <p className="text-gray-400 mt-2 font-medium">{stat.label}</p>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+                <div className="w-8 h-[2px] bg-gradient-to-r from-[#C8A45C] to-transparent mx-auto my-4" />
+                <p className="text-white/40 text-sm font-medium tracking-wide">{stat.label}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

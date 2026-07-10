@@ -10,26 +10,26 @@ export default function LoadingScreen() {
   const [showContent, setShowContent] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     const timer = setInterval(() => {
+      if (!mounted) return;
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
           return 100;
         }
-        const increment = Math.random() * 15 + 2;
+        const increment = Math.random() * 8 + 1;
         return Math.min(prev + increment, 100);
       });
-    }, 200);
-
-    return () => clearInterval(timer);
+    }, 150);
+    return () => { mounted = false; clearInterval(timer); };
   }, []);
 
   useEffect(() => {
     if (progress >= 100) {
-      setTimeout(() => {
-        setShowContent(false);
-        setTimeout(() => setIsLoading(false), 500);
-      }, 800);
+      const t1 = setTimeout(() => setShowContent(false), 500);
+      const t2 = setTimeout(() => setIsLoading(false), 1000);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
     }
   }, [progress, setIsLoading]);
 
@@ -39,93 +39,77 @@ export default function LoadingScreen() {
         <motion.div
           className="loading-screen"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
+          exit={{ opacity: 0, scale: 1.05, filter: 'blur(8px)' }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
         >
-          {/* Blueprint Animation */}
-          <div className="relative w-32 h-32">
+          {/* Building Icon Container */}
+          <div className="relative">
+            {/* Outer Ring */}
             <motion.div
-              className="absolute inset-0 border-2 border-primary/30 rounded-lg"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1 }}
+              className="w-28 h-28 rounded-full border border-[#C8A45C]/20 flex items-center justify-center"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
             >
-              <svg className="w-full h-full" viewBox="0 0 100 100">
-                <motion.rect
-                  x="10" y="10" width="80" height="80"
-                  fill="none"
-                  stroke="#F5A623"
-                  strokeWidth="1"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 2, ease: 'easeInOut' }}
-                />
-                <motion.line
-                  x1="10" y1="50" x2="90" y2="50"
-                  stroke="#F5A623"
-                  strokeWidth="0.5"
-                  strokeDasharray="4 4"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 1.5, delay: 0.5 }}
-                />
-                <motion.line
-                  x1="50" y1="10" x2="50" y2="90"
-                  stroke="#F5A623"
-                  strokeWidth="0.5"
-                  strokeDasharray="4 4"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 1.5, delay: 0.5 }}
-                />
-              </svg>
+              <div className="w-20 h-20 rounded-full border border-[#C8A45C]/30 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#C8A45C]/20 to-transparent flex items-center justify-center">
+                  <span className="text-3xl">🏗️</span>
+                </div>
+              </div>
             </motion.div>
-
-            {/* Building Logo */}
-            <motion.div
-              className="absolute inset-0 flex items-center justify-center"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.8, duration: 0.6, type: 'spring' }}
-            >
-              <span className="text-4xl">🏗️</span>
-            </motion.div>
+            
+            {/* Glow */}
+            <div className="absolute inset-0 bg-[#C8A45C]/5 blur-3xl rounded-full" />
           </div>
 
           {/* Company Name */}
-          <motion.h1
-            className="text-2xl font-bold text-white mt-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            ساختمان‌سازی <span className="text-primary">لوکس</span>
-          </motion.h1>
+          <div className="text-center">
+            <motion.h1
+              className="text-3xl font-black text-white tracking-wider"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              ساختمان‌سازی
+            </motion.h1>
+            <motion.p
+              className="text-[#C8A45C] text-lg font-light mt-1 tracking-[0.2em]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              L U X E
+            </motion.p>
+          </div>
 
-          {/* Progress Bar */}
-          <div className="w-64 mt-8">
-            <div className="flex justify-between text-sm text-gray-400 mb-2">
+          {/* Progress */}
+          <div className="w-72">
+            <div className="flex justify-between text-xs text-white/30 mb-3 font-light tracking-wider">
               <span>در حال بارگذاری</span>
               <span>{Math.round(progress)}%</span>
             </div>
-            <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-[2px] bg-white/5 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-primary rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
+                className="h-full rounded-full"
+                style={{
+                  background: 'linear-gradient(90deg, #C8A45C, #E8D5A8, #C8A45C)',
+                  width: `${progress}%`,
+                }}
                 transition={{ duration: 0.3 }}
               />
             </div>
           </div>
 
-          {/* Loading Tips */}
+          {/* Loading text cycling */}
           <motion.p
-            className="text-gray-500 text-sm mt-4"
+            className="text-white/20 text-xs font-light tracking-wider"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
+            animate={{ opacity: [0.2, 0.5, 0.2] }}
+            transition={{ duration: 3, repeat: Infinity }}
           >
-            در حال آماده‌سازی تجربه معماری لوکس...
+            {progress < 30 ? 'طراحی معماری...' : 
+             progress < 60 ? 'اجرای سازه...' : 
+             progress < 90 ? 'نازک‌کاری و دکوراسیون...' : 
+             'آماده تحویل...'}
           </motion.p>
         </motion.div>
       )}
