@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { projectsData } from '@/data/company';
 

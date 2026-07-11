@@ -3,15 +3,13 @@ import './globals.css';
 import ClientLayout from './client-layout';
 
 export const metadata: Metadata = {
-  title: 'ساختمان‌سازی لوکس | طراحی، ساخت و بازسازی ساختمان',
-  description: 'شرکت ساختمان‌سازی لوکس با بیش از ۱۵ سال تجربه در زمینه طراحی، ساخت و بازسازی ساختمان‌های لوکس. ارائه خدمات معماری، طراحی داخلی و نما.',
-  keywords: ['ساختمان‌سازی', 'بازسازی ساختمان', 'طراحی داخلی', 'معماری', 'ویلا', 'آپارتمان', 'نوسازی', 'دکوراسیون'],
+  title: 'اِتِرنال | استودیو معماری و ساخت',
+  description: 'استودیو معماری، طراحی و ساخت پروژه‌های شاخص و فضاهای ماندگار؛ از کانسپت تا اجرای کامل.',
+  keywords: ['معماری لوکس', 'ساخت ویلا', 'طراحی معماری', 'طراحی داخلی', 'ساختمان لوکس'],
   openGraph: {
-    title: 'ساختمان‌سازی لوکس | معماری فردا، امروز ساخته می‌شود',
-    description: 'شرکت ساختمانی لوکس با بیش از ۱۵ سال تجربه',
-    locale: 'fa_IR',
-    type: 'website',
-    siteName: 'ساختمان‌سازی لوکس',
+    title: 'اِتِرنال | فرم، فراتر از تصور',
+    description: 'معماری، طراحی و ساخت فضاهایی فراتر از زمان',
+    locale: 'fa_IR', type: 'website', siteName: 'اِتِرنال',
   },
   robots: { index: true, follow: true },
 };
@@ -19,14 +17,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fa" dir="rtl">
-      <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>" />
-        <meta name="theme-color" content="#C8A45C" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      <body>
-        <ClientLayout>{children}</ClientLayout>
-      </body>
+      <head><meta name="theme-color" content="#080807" /><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" /></head>
+      <body><ClientLayout>{children}</ClientLayout></body>
     </html>
   );
 }

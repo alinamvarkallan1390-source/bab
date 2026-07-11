@@ -2,8 +2,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { HiArrowLeft } from 'react-icons/hi';
 import { servicesData } from '@/data/company';
 import ContactCTA from '@/components/home/ContactCTA';
 

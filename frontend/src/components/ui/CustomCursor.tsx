@@ -67,7 +67,7 @@ export default function CustomCursor() {
           width: 4,
           height: 4,
           borderRadius: '50%',
-          backgroundColor: '#F5A623',
+          backgroundColor: '#A9683A',
           transform: 'translate(-50%, -50%)',
         }}
       />

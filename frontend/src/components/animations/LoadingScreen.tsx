@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLoading } from '@/contexts/LoadingContext';
 
 export default function LoadingScreen() {
-  const { isLoading, setIsLoading } = useLoading();
+  const { setIsLoading } = useLoading();
   const [progress, setProgress] = useState(0);
   const [show, setShow] = useState(true);
 

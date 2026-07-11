@@ -1,76 +1,34 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { HiMenu, HiX } from 'react-icons/hi';
-import { navItems } from '@/data/company';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+
+const items = [
+  { label: 'پروژه‌ها', href: '/portfolio' },
+  { label: 'خدمات', href: '/services' },
+  { label: 'درباره ما', href: '/about' },
+  { label: 'تماس', href: '/contact' },
+];
 
 export default function Navigation() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 80);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
-    <>
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 right-0 left-0 z-50 transition-all duration-500 ${
-          isScrolled ? 'bg-[#0A0A0A]/90 backdrop-blur-xl border-b border-white/5 py-3' : 'bg-transparent py-5'
-        }`}
-      >
-        <div className="section-container">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-sm shadow-lg">🏗️</div>
-              <div>
-                <span className="text-white font-black text-sm tracking-wide">ساختمان‌سازی</span>
-                <span className="block text-[8px] text-gold tracking-[0.3em] font-medium leading-none">L U X E</span>
-              </div>
-            </Link>
-
-            <div className="hidden lg:flex items-center gap-1">
-              {navItems.map(item => (
-                <Link key={item.href} href={item.href} className="px-4 py-2 text-sm text-white/50 hover:text-white rounded-lg hover:bg-white/5 transition-all">
-                  {item.label}
-                </Link>
-              ))}
-              <Link href="/contact" className="mr-3 px-5 py-2 rounded-full text-sm font-bold text-black transition-all" style={{ background: 'linear-gradient(135deg, #C9A84C, #A8883E)' }}>
-                مشاوره رایگان
-              </Link>
-            </div>
-
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden text-white p-2 relative z-50" aria-label="منو">
-              {isMobileMenuOpen ? <HiX size={22} /> : <HiMenu size={22} />}
-            </button>
-          </div>
-        </div>
-      </motion.nav>
-
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40 lg:hidden">
-            <div className="absolute inset-0 bg-[#0A0A0A]/98 backdrop-blur-2xl" onClick={() => setIsMobileMenuOpen(false)} />
-            <div className="relative z-10 h-full flex flex-col items-center justify-center gap-5 p-8">
-              {navItems.map((item, index) => (
-                <motion.div key={item.href} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.06 }}>
-                  <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)} className="text-white/50 hover:text-white text-xl font-bold transition-all block text-center py-2">{item.label}</Link>
-                </motion.div>
-              ))}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="btn-luxury mt-4">مشاوره رایگان</Link>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    <header className={`main-nav ${scrolled ? 'is-scrolled' : ''}`}>
+      <Link href="/" className="brand" aria-label="صفحه اصلی"><span className="brand-mark"><i /><i /></span><span><b>اِتِرنال</b><small>ETERNAL / ARCHITECTS</small></span></Link>
+      <nav>{items.map(item => <Link className={pathname === item.href ? 'active' : ''} key={item.href} href={item.href}>{item.label}</Link>)}</nav>
+      <Link href="/contact" className="nav-cta"><span>درخواست مشاوره</span><b>↙</b></Link>
+      <button className="menu-button" onClick={() => setOpen(!open)} aria-label="منو"><i /><i /></button>
+      <AnimatePresence>{open && <motion.div className="mobile-menu" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>{items.map((item, i) => <motion.div key={item.href} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * .06 }}><Link href={item.href} onClick={() => setOpen(false)}>{item.label}<span>0{i + 1}</span></Link></motion.div>)}</motion.div>}</AnimatePresence>
+    </header>
   );
 }

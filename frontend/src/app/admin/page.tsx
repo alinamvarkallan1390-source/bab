@@ -6,7 +6,7 @@ import axios from 'axios';
 
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<{ name: string } | null>(null);
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,8 +23,9 @@ export default function AdminPage() {
         setUserData(res.data.data.user);
         setIsLoggedIn(true);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'خطا در ورود');
+    } catch (err: unknown) {
+      const message = axios.isAxiosError<{ message?: string }>(err) ? err.response?.data?.message : undefined;
+      setError(message || 'خطا در ورود');
     } finally {
       setLoading(false);
     }
