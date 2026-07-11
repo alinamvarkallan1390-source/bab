@@ -17,7 +17,7 @@ export default function AdminPage() {
     setLoading(true);
 
     try {
-      const API = process.env.NEXT_PUBLIC_API_URL || '/api';
+      const API = '/api';
       const res = await axios.post(`${API}/auth/login`, form);
       if (res.data.success) {
         setUserData(res.data.data.user);
