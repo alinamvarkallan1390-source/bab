@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 5000;
+const RELEASE = 'ultra-v3-home-3d';
 
 // Middleware
 app.use(express.json({ limit: '10mb' }));
@@ -20,6 +21,7 @@ app.use((req, res, next) => {
 
 // Security headers
 app.use((req, res, next) => {
+  res.header('X-Eternal-Release', RELEASE);
   res.header('X-Content-Type-Options', 'nosniff');
   res.header('X-Frame-Options', 'SAMEORIGIN');
   res.header('X-XSS-Protection', '1; mode=block');
@@ -39,7 +41,7 @@ if (fs.existsSync(backendPath)) {
 
   // Health check
   app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ status: 'ok', release: RELEASE, timestamp: new Date().toISOString() });
   });
 
   console.log('✅ Backend API loaded');
@@ -49,7 +51,7 @@ if (fs.existsSync(backendPath)) {
   
   // Simple health check even without backend
   app.get('/health', (req, res) => {
-    res.json({ status: 'ok', mode: 'frontend-only', timestamp: new Date().toISOString() });
+    res.json({ status: 'ok', mode: 'frontend-only', release: RELEASE, timestamp: new Date().toISOString() });
   });
 }
 
@@ -60,8 +62,8 @@ if (fs.existsSync(frontendOut)) {
   app.use(express.static(frontendOut, {
     maxAge: '1y',
     setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.html')) {
-        res.setHeader('Cache-Control', 'no-cache');
+      if (filePath.endsWith('.html') || filePath.endsWith('release.json')) {
+        res.setHeader('Cache-Control', 'no-store, max-age=0');
       }
     }
   }));
