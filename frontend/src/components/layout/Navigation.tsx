@@ -23,37 +23,26 @@ export default function Navigation() {
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className={`fixed top-0 right-0 left-0 z-50 transition-all duration-500 ${
-          isScrolled
-            ? 'bg-[#050505]/90 backdrop-blur-xl border-b border-[#00ffff]/10 py-3'
-            : 'bg-transparent py-5'
+          isScrolled ? 'bg-[#0A0A0A]/90 backdrop-blur-xl border-b border-white/5 py-3' : 'bg-transparent py-5'
         }`}
       >
         <div className="section-container">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-fuchsia-500 flex items-center justify-center text-sm shadow-lg" style={{ boxShadow: '0 0 15px rgba(0,255,255,0.2)' }}>
-                🏗️
-              </div>
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-sm shadow-lg">🏗️</div>
               <div>
                 <span className="text-white font-black text-sm tracking-wide">ساختمان‌سازی</span>
-                <span className="block text-[8px] text-cyan-400 tracking-[0.3em] font-medium leading-none" style={{ textShadow: '0 0 10px rgba(0,255,255,0.3)' }}>N E O N</span>
+                <span className="block text-[8px] text-gold tracking-[0.3em] font-medium leading-none">L U X E</span>
               </div>
             </Link>
 
             <div className="hidden lg:flex items-center gap-1">
               {navItems.map(item => (
-                <Link key={item.href} href={item.href}
-                  className="px-4 py-2 text-sm text-gray-500 hover:text-white rounded-lg hover:bg-white/5 transition-all">
+                <Link key={item.href} href={item.href} className="px-4 py-2 text-sm text-white/50 hover:text-white rounded-lg hover:bg-white/5 transition-all">
                   {item.label}
                 </Link>
               ))}
-              <Link href="/contact"
-                className="mr-3 px-5 py-2 rounded-lg text-sm font-bold text-black transition-all"
-                style={{
-                  background: 'linear-gradient(135deg, #00ffff, #ff00ff)',
-                  boxShadow: '0 0 20px rgba(0,255,255,0.2)'
-                }}
-              >
+              <Link href="/contact" className="mr-3 px-5 py-2 rounded-full text-sm font-bold text-black transition-all" style={{ background: 'linear-gradient(135deg, #C9A84C, #A8883E)' }}>
                 مشاوره رایگان
               </Link>
             </div>
@@ -68,18 +57,15 @@ export default function Navigation() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40 lg:hidden">
-            <div className="absolute inset-0 bg-[#050505]/98 backdrop-blur-2xl" onClick={() => setIsMobileMenuOpen(false)} />
+            <div className="absolute inset-0 bg-[#0A0A0A]/98 backdrop-blur-2xl" onClick={() => setIsMobileMenuOpen(false)} />
             <div className="relative z-10 h-full flex flex-col items-center justify-center gap-5 p-8">
               {navItems.map((item, index) => (
                 <motion.div key={item.href} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.06 }}>
-                  <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-gray-500 hover:text-white text-xl font-bold transition-all block text-center py-2">
-                    {item.label}
-                  </Link>
+                  <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)} className="text-white/50 hover:text-white text-xl font-bold transition-all block text-center py-2">{item.label}</Link>
                 </motion.div>
               ))}
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="btn-neon mt-4">مشاوره رایگان</Link>
+                <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="btn-luxury mt-4">مشاوره رایگان</Link>
               </motion.div>
             </div>
           </motion.div>
