@@ -1,71 +1,21 @@
 'use client';
 
-import React from 'react';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { servicesData } from '@/data/company';
-import ContactCTA from '@/components/home/ContactCTA';
 
-export default function ServicesPage() {
-  return (
-    <main className="pt-24" dir="rtl">
-      {/* Page Header */}
-      <section className="relative py-20 bg-dark overflow-hidden">
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: 'linear-gradient(45deg, #F5A623 1px, transparent 1px)',
-          backgroundSize: '30px 30px'
-        }} />
-        <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-black text-white mb-4"
-          >
-            خدمات <span className="text-gradient">ما</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-gray-400 text-lg max-w-2xl mx-auto"
-          >
-            ارائه طیف کاملی از خدمات ساختمانی با بالاترین استانداردهای کیفیت
-          </motion.p>
-        </div>
-      </section>
-
-      {/* Services List */}
-      <section className="section-padding bg-lightgray">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {servicesData.map((service, index) => (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group"
-              >
-                <div className="card p-8 bg-white h-full">
-                  <div className="text-5xl mb-6">{service.icon}</div>
-                  <h3 className="text-xl font-bold mb-3">{service.title}</h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">{service.description}</p>
-                  <div className="space-y-3 mb-6">
-                    {service.features.map((f, i) => (
-                      <div key={i} className="flex items-center gap-2 text-sm text-gray-500">
-                        <span className="w-1.5 h-1.5 bg-primary rounded-full" />
-                        {f}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <ContactCTA />
-    </main>
-  );
-}
+const ServiceBlueprintScene=dynamic(()=>import('@/components/three/ServiceBlueprintScene'),{ssr:false});
+const services=[
+ {no:'01',en:'ARCHITECTURE',title:'معماری',lead:'از زمین خام تا یک فرم ماندگار.',text:'تحلیل سایت، شکل‌گیری کانسپت، طراحی فاز یک و دو و تهیه تمام اسناد اجرایی با یک نگاه یکپارچه.',items:['مطالعات و برنامه‌ریزی','طراحی کانسپت','مدارک فاز یک و دو','مدل‌سازی BIM']},
+ {no:'02',en:'INTERIOR',title:'طراحی داخلی',lead:'فضایی که دقیقاً شبیه شماست.',text:'طراحی تجربه‌ی درون فضا با ترکیب نور، متریال، مبلمان و جزئیاتی که در هیچ پروژه دیگری تکرار نمی‌شوند.',items:['هویت فضایی','طراحی نور','انتخاب متریال','مبلمان سفارشی']},
+ {no:'03',en:'BUILD',title:'ساخت و اجرا',lead:'کنترل کامل، از نقشه تا تحویل.',text:'مدیریت یکپارچه ساخت با برنامه‌ریزی شفاف، تیم اجرایی متخصص و گزارش لحظه‌ای کیفیت، هزینه و زمان.',items:['مدیریت پیمان','اجرای سازه و معماری','کنترل هزینه','تضمین کیفیت']},
+ {no:'04',en:'RENOVATION',title:'بازآفرینی',lead:'زندگی تازه برای ساختمان موجود.',text:'شناخت ظرفیت‌های پنهان بنا و تبدیل آن به فضایی معاصر، کارآمد و ارزشمند بدون پاک کردن خاطره‌ی مکان.',items:['برداشت و آسیب‌شناسی','تقویت سازه','بازطراحی کامل','نوسازی تأسیسات']},
+];
+const phases=[['01','شناخت','سایت، نیازها و سبک زندگی را با دقت می‌خوانیم.'],['02','ایده','چند مسیر مفهومی را به تصویر و مدل تبدیل می‌کنیم.'],['03','توسعه','جزئیات، متریال و مهندسی پروژه را کامل می‌کنیم.'],['04','ساخت','با کنترل روزانه، طرح را دقیقاً به واقعیت می‌رسانیم.']];
+export default function ServicesPage(){return <main className="services-page" dir="rtl">
+ <section className="services-hero"><div className="services-copy container-wide"><motion.div initial={{opacity:0}} animate={{opacity:1}} className="section-kicker">دامنه خدمات / ۲۰۲۶</motion.div><motion.h1 initial={{opacity:0,y:45}} animate={{opacity:1,y:0}} transition={{duration:.9}}>یک تیم.<br/><em>تمام مسیر.</em></motion.h1><p>طراحی و ساخت را از هم جدا نمی‌کنیم؛ چون بهترین نتیجه زمانی شکل می‌گیرد که همه‌چیز از ابتدا با یک vision هدایت شود.</p></div><div className="services-3d"><ServiceBlueprintScene/></div><div className="services-orbit-label">DESIGN · ENGINEER · BUILD</div></section>
+ <section className="service-ledger section-space"><div className="container-wide"><div className="ledger-intro"><div className="section-kicker">چه کار می‌کنیم / ۰۱</div><h2>تخصص‌هایی که<br/><span>به هم متصل‌اند.</span></h2></div><div className="ledger-list">{services.map((s,i)=><motion.article key={s.no} initial={{opacity:0,y:35}} whileInView={{opacity:1,y:0}} viewport={{once:true,margin:'-10%'}} transition={{delay:i*.08}}><div className="ledger-title"><span>{s.no}</span><small>{s.en}</small><h3>{s.title}</h3></div><div className="ledger-body"><h4>{s.lead}</h4><p>{s.text}</p><ul>{s.items.map(x=><li key={x}>{x}</li>)}</ul></div><Link href="/contact">↙</Link></motion.article>)}</div></div></section>
+ <section className="service-process section-space"><div className="container-wide"><div className="section-kicker">روش کار / ۰۲</div><div className="process-header"><h2>پیچیدگی پروژه،<br/><em>برای شما ساده می‌شود.</em></h2><p>یک فرآیند روشن و قابل اندازه‌گیری؛ با نقطه‌های تصمیم مشخص و گزارش‌های منظم در تمام مسیر.</p></div><div className="phase-track">{phases.map((p,i)=><motion.div key={p[0]} initial={{opacity:0,x:30}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{delay:i*.1}}><span>{p[0]}</span><i/><h3>{p[1]}</h3><p>{p[2]}</p></motion.div>)}</div></div></section>
+ <section className="scope-section"><div className="container-wide scope-grid"><div><div className="section-kicker">تعهد ما / ۰۳</div><h2>زیبا کافی نیست.<br/><span>باید درست کار کند.</span></h2></div><div className="scope-stats"><div><b>۱۵+</b><span>سال تجربه یکپارچه</span></div><div><b>۹۶٪</b><span>تحویل در برنامه</span></div><div><b>۵</b><span>سال ضمانت اجرا</span></div><div><b>۲۸</b><span>شهر تحت پوشش</span></div></div></div></section>
+ <section className="services-final"><div className="container-wide"><span>START A PROJECT</span><h2>از کجا<br/><em>شروع کنیم؟</em></h2><Link href="/contact" className="button-bronze">رزرو جلسه‌ی آشنایی <b>↙</b></Link></div></section>
+ </main>}

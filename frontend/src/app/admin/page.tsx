@@ -1,148 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import axios from 'axios';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FormEvent, useState } from 'react';
 
-export default function AdminPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<{ name: string } | null>(null);
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+type View='overview'|'projects'|'messages'|'content'|'settings';
+type IconName='grid'|'building'|'mail'|'edit'|'settings'|'logout'|'search'|'bell'|'plus'|'arrow';
+function Icon({name}:{name:IconName}){const paths:Record<IconName,React.ReactNode>={grid:<><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></>,building:<><path d="M4 21V6l8-3 8 3v15"/><path d="M9 21v-4h6v4M8 8h2m4 0h2M8 12h2m4 0h2"/></>,mail:<><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></>,edit:<><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></>,settings:<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1H3v-4h1a1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6V3h4v1a1.7 1.7 0 0 0 1 .6 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.38.31.72.6 1h1v4h-1c-.29.28-.5.62-.6 1Z"/></>,logout:<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5m5 5H9"/></>,search:<><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></>,bell:<><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></>,plus:<path d="M12 5v14M5 12h14"/>,arrow:<path d="m9 18 6-6-6-6"/>};return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>}
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+const navigation:[View,string,IconName][]=[['overview','نمای کلی','grid'],['projects','پروژه‌ها','building'],['messages','پیام‌ها','mail'],['content','محتوا','edit'],['settings','تنظیمات','settings']];
+const projectRows=[['ویلای اُریب','لواسان','اجرا','۷۸٪','۱۴۰۴/۰۶/۱۸'],['پنت‌هاوس نوآر','الهیه','طراحی','۴۲٪','۱۴۰۴/۰۸/۰۲'],['آتلیه‌ی خط','سعادت‌آباد','تحویل شده','۱۰۰٪','۱۴۰۳/۱۲/۲۵'],['سوئیت ترا','کیش','اجرا','۶۱٪','۱۴۰۴/۰۷/۱۲']];
+function MiniChart(){return <div className="mini-chart"><svg viewBox="0 0 620 190" preserveAspectRatio="none"><defs><linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#a9683a" stopOpacity=".28"/><stop offset="1" stopColor="#a9683a" stopOpacity="0"/></linearGradient></defs><path className="fill" d="M0 160 C50 150 60 115 110 122 S170 148 210 92 S290 105 325 62 S405 94 450 48 S540 82 620 20 L620 190 L0 190Z"/><path className="line" d="M0 160 C50 150 60 115 110 122 S170 148 210 92 S290 105 325 62 S405 94 450 48 S540 82 620 20"/></svg><div className="chart-labels"><span>فروردین</span><span>خرداد</span><span>شهریور</span><span>آذر</span><span>اسفند</span></div></div>}
 
-    try {
-      const API = '/api';
-      const res = await axios.post(`${API}/auth/login`, form);
-      if (res.data.success) {
-        setUserData(res.data.data.user);
-        setIsLoggedIn(true);
-      }
-    } catch (err: unknown) {
-      const message = axios.isAxiosError<{ message?: string }>(err) ? err.response?.data?.message : undefined;
-      setError(message || 'خطا در ورود');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#0B0B0B' }} dir="rtl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md p-10 rounded-3xl bg-white/[0.02] border border-white/[0.06]"
-        >
-          <div className="text-center mb-10">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#D4A843] to-[#B8922E] flex items-center justify-center text-2xl mx-auto mb-6">🏗️</div>
-            <h2 className="text-2xl font-black text-white">پنل مدیریت</h2>
-            <p className="text-white/30 text-sm mt-2">ساختمان‌سازی لوکس</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-xs text-white/40 mb-2 font-medium">ایمیل</label>
-              <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#D4A843]/50 transition-all outline-none text-sm"
-                placeholder="admin@luxuryconst.com" required />
-            </div>
-            <div>
-              <label className="block text-xs text-white/40 mb-2 font-medium">رمز عبور</label>
-              <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
-                className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#D4A843]/50 transition-all outline-none text-sm"
-                placeholder="••••••••" required />
-            </div>
-
-            {error && (
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center">
-                ❌ {error}
-              </motion.p>
-            )}
-
-            <button type="submit" disabled={loading}
-              className="w-full py-4 rounded-xl bg-gradient-to-l from-[#D4A843] to-[#B8922E] text-black font-bold text-sm hover:shadow-lg hover:shadow-[#D4A843]/20 transition-all disabled:opacity-50">
-              {loading ? 'در حال ورود...' : 'ورود به پنل مدیریت'}
-            </button>
-
-            <div className="text-center text-white/20 text-xs mt-4">
-              <p>دمو: admin@luxuryconst.com / admin123</p>
-            </div>
-          </form>
-        </motion.div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen" style={{ background: '#0B0B0B' }} dir="rtl">
-      <div className="flex">
-        <aside className="w-72 bg-white/[0.02] border-l border-white/[0.06] p-6 fixed right-0 top-0 bottom-0 overflow-y-auto">
-          <div className="flex items-center gap-3 mb-10">
-            <span className="text-2xl">🏗️</span>
-            <div>
-              <h3 className="text-white font-bold text-sm">پنل مدیریت</h3>
-              <p className="text-white/30 text-xs">خوش آمدی، {userData?.name}</p>
-            </div>
-          </div>
-          {[
-            { icon: '📊', label: 'داشبورد' },
-            { icon: '🏗️', label: 'پروژه‌ها' },
-            { icon: '📄', label: 'خدمات' },
-            { icon: '✍️', label: 'وبلاگ' },
-            { icon: '💬', label: 'نظرات' },
-            { icon: '✉️', label: 'پیام‌ها' },
-            { icon: '⚙️', label: 'تنظیمات' },
-          ].map(item => (
-            <button key={item.label}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all text-sm mb-1">
-              <span>{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-          <button onClick={() => { setIsLoggedIn(false); setUserData(null); }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400/50 hover:text-red-400 hover:bg-red-500/5 transition-all text-sm mt-8">
-            <span>🚪</span> خروج
-          </button>
-        </aside>
-
-        <main className="flex-1 mr-72 p-8">
-          <div className="flex items-center justify-between mb-10">
-            <h2 className="text-3xl font-black text-white">داشبورد</h2>
-            <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-white/40 text-xs">متصل به API</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { label: 'پروژه‌ها', value: '۵۲۰', change: '+۱۲٪', color: 'from-[#D4A843] to-[#B8922E]' },
-              { label: 'خدمات', value: '۶', change: '+۲', color: 'from-blue-500 to-blue-600' },
-              { label: 'پیام‌ها', value: '۱۲۴', change: '+۳۰٪', color: 'from-green-500 to-green-600' },
-              { label: 'بازدید', value: '۱,۲۴۰', change: '+۱۵٪', color: 'from-purple-500 to-purple-600' },
-            ].map((stat, i) => (
-              <motion.div key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="relative overflow-hidden rounded-2xl p-6 bg-white/[0.02] border border-white/[0.06]">
-                <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5`} />
-                <div className="relative z-10">
-                  <p className="text-white/40 text-sm">{stat.label}</p>
-                  <p className="text-3xl font-black text-white mt-2">{stat.value}</p>
-                  <span className="text-green-400/80 text-xs">{stat.change}</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </main>
-      </div>
-    </div>
-  );
+export default function AdminPage(){
+ const [logged,setLogged]=useState(false),[loading,setLoading]=useState(false);const [error,setError]=useState('');const [form,setForm]=useState({email:'',password:''});const [view,setView]=useState<View>('overview');
+ async function login(e:FormEvent){e.preventDefault();setLoading(true);setError('');try{const res=await axios.post('/api/auth/login',form);if(res.data.success)setLogged(true);else setError('اطلاعات ورود صحیح نیست');}catch(err:unknown){setError(axios.isAxiosError<{message?:string}>(err)?err.response?.data?.message||'ارتباط با سرور برقرار نشد':'خطای غیرمنتظره');}finally{setLoading(false)}}
+ if(!logged)return <main className="admin-page admin-login"><div className="login-architecture"><div className="login-lines"/><div className="login-tower">{Array.from({length:8},(_,i)=><i key={i}/>)}</div><div className="login-caption"><span>ETERNAL / CONTROL ROOM</span><h1>جزئیات،<br/><em>تفاوت را می‌سازند.</em></h1></div></div><motion.div className="login-panel" initial={{opacity:0,x:-30}} animate={{opacity:1,x:0}}><div className="admin-brand"><span className="brand-mark"><i/><i/></span><span><b>اِتِرنال</b><small>MANAGEMENT SYSTEM</small></span></div><div className="login-heading"><span>ورود امن</span><h2>خوش آمدید.</h2><p>برای مدیریت پروژه‌ها و محتوای استودیو وارد شوید.</p></div><form onSubmit={login}><label>آدرس ایمیل<input type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="name@eternal.arch" required/></label><label>رمز عبور<input type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} placeholder="••••••••" required/></label><div className="login-options"><label><input type="checkbox"/> مرا به خاطر بسپار</label><button type="button">فراموشی رمز</button></div>{error&&<motion.p className="login-error" initial={{opacity:0}} animate={{opacity:1}}>{error}</motion.p>}<button className="login-submit" disabled={loading}>{loading?'در حال بررسی...':'ورود به پنل'}<Icon name="arrow"/></button></form><div className="login-security"><i/> ارتباط رمزنگاری‌شده و امن</div></motion.div></main>;
+ return <main className="admin-page admin-shell"><aside className="admin-sidebar"><div className="admin-brand"><span className="brand-mark"><i/><i/></span><span><b>اِتِرنال</b><small>STUDIO MANAGER</small></span></div><div className="admin-user"><div>AN</div><span><b>علی نادری</b><small>مدیر سیستم</small></span><i/></div><nav>{navigation.map(n=><button key={n[0]} onClick={()=>setView(n[0])} className={view===n[0]?'active':''}><Icon name={n[2]}/><span>{n[1]}</span>{n[0]==='messages'&&<b>۸</b>}</button>)}</nav><div className="sidebar-bottom"><div className="storage"><span><b>فضای ذخیره</b><small>۶.۴ از ۱۰ گیگابایت</small></span><div><i/></div></div><button onClick={()=>setLogged(false)}><Icon name="logout"/>خروج از حساب</button></div></aside>
+ <section className="admin-main"><header className="admin-topbar"><div><h1>{navigation.find(n=>n[0]===view)?.[1]}</h1><p>شنبه، ۲۰ تیر ۱۴۰۵</p></div><div className="top-actions"><label><Icon name="search"/><input placeholder="جست‌وجو..."/></label><button><Icon name="bell"/><i/></button><button className="new-project"><Icon name="plus"/> پروژه جدید</button></div></header><div className="admin-content"><AnimatePresence mode="wait"><motion.div key={view} initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}} transition={{duration:.25}}>
+ {view==='overview'&&<><div className="metric-grid">{[['پروژه‌های فعال','۱۲','+۲ این ماه','01'],['سرنخ‌های جدید','۳۸','+۱۸٪','02'],['بازدید وب‌سایت','۲۴.۸K','+۱۲٪','03'],['رضایت مشتری','۹۶٪','+۴٪','04']].map((m,i)=><article key={m[0]}><div className="metric-top"><span>{m[0]}</span><small>{m[3]}</small></div><strong>{m[1]}</strong><p className={i===0?'neutral':''}>{m[2]} <i>↗</i></p><div className={`metric-spark spark-${i}`}><i/><i/><i/><i/><i/><i/></div></article>)}</div><div className="dashboard-grid"><article className="traffic-card"><div className="card-head"><div><h2>عملکرد وب‌سایت</h2><p>بازدید یکتا در ۱۲ ماه اخیر</p></div><select><option>سال جاری</option></select></div><div className="chart-value"><strong>۲۴,۸۴۰</strong><span>۱۲.۴٪ ↗</span></div><MiniChart/></article><article className="progress-card"><div className="card-head"><div><h2>پیشرفت پروژه‌ها</h2><p>وضعیت پروژه‌های فعال</p></div><button>همه</button></div>{projectRows.slice(0,3).map((p,i)=><div className="progress-row" key={p[0]}><div className={`project-thumb thumb-${i}`}><i/><i/><i/></div><div><b>{p[0]}</b><small>{p[1]} · {p[2]}</small><span><i style={{width:p[3]}}/></span></div><strong>{p[3]}</strong></div>)}</article></div><div className="lower-grid"><article className="activity-card"><div className="card-head"><div><h2>فعالیت‌های اخیر</h2><p>آخرین تغییرات تیم</p></div></div>{[['AN','علی نادری','پروژه «ویلای اُریب» را به‌روزرسانی کرد','۱۲ دقیقه پیش'],['SM','سارا محمدی','یک مقاله جدید منتشر کرد','۴۵ دقیقه پیش'],['RK','رضا کریمی','۳ تصویر به پروژه اضافه کرد','۲ ساعت پیش']].map(a=><div className="activity" key={a[3]}><span>{a[0]}</span><p><b>{a[1]}</b>{a[2]}</p><small>{a[3]}</small></div>)}</article><article className="message-card"><span>۸ پیام خوانده‌نشده</span><h2>مشتریان منتظر<br/>پاسخ شما هستند.</h2><button onClick={()=>setView('messages')}>مشاهده پیام‌ها <Icon name="arrow"/></button></article></div></>}
+ {view==='projects'&&<section className="admin-list-view"><div className="list-toolbar"><div><h2>تمام پروژه‌ها</h2><p>مدیریت وضعیت، اطلاعات و رسانه‌های پروژه</p></div><button><Icon name="plus"/> افزودن پروژه</button></div><div className="project-table"><div className="table-head"><span>پروژه</span><span>مرحله</span><span>پیشرفت</span><span>موعد تحویل</span><span/></div>{projectRows.map((p,i)=><div className="table-row" key={p[0]}><div><div className={`project-thumb thumb-${i}`}><i/><i/><i/></div><span><b>{p[0]}</b><small>{p[1]}</small></span></div><span className={`status status-${i}`}>{p[2]}</span><div className="table-progress"><span><i style={{width:p[3]}}/></span><b>{p[3]}</b></div><span>{p[4]}</span><button>•••</button></div>)}</div></section>}
+ {view==='messages'&&<section className="admin-list-view"><div className="list-toolbar"><div><h2>پیام‌های ورودی</h2><p>درخواست‌های مشاوره و تماس وب‌سایت</p></div></div><div className="inbox">{[['مریم احمدی','درخواست طراحی ویلای لواسان','امروز، ۱۰:۴۲','جدید'],['آرش فرهمند','بازسازی آپارتمان ۳۲۰ متری','امروز، ۰۹:۱۸','جدید'],['شرکت آریا','طراحی دفتر مرکزی','دیروز، ۱۶:۳۰','پاسخ داده شد'],['سارا کریمی','مشاوره طراحی داخلی','دیروز، ۱۲:۰۵','جدید']].map((m,i)=><button key={m[0]}><span className={`avatar a-${i}`}>{m[0][0]}</span><div><b>{m[0]}</b><p>{m[1]}</p></div><small>{m[2]}</small><i className={m[3]==='جدید'?'new':''}>{m[3]}</i></button>)}</div></section>}
+ {(view==='content'||view==='settings')&&<section className="empty-view"><div><Icon name={view==='content'?'edit':'settings'}/></div><h2>{view==='content'?'مدیریت محتوای سایت':'تنظیمات استودیو'}</h2><p>{view==='content'?'صفحات، مقالات و اطلاعات عمومی سایت را از اینجا مدیریت کنید.':'اطلاعات حساب، دسترسی تیم و تنظیمات سیستم.'}</p><button>ورود به بخش <Icon name="arrow"/></button></section>}
+ </motion.div></AnimatePresence></div></section></main>
 }
